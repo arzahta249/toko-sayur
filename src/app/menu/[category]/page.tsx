@@ -3,13 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+// Ambil data produk berdasarkan kategori
 const getData = async (category: string) => {
   const res = await fetch(`http://localhost:3000/api/products?cat=${category}`, {
     cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed!");
+    throw new Error("Failed to fetch products!");
   }
 
   return res.json();
@@ -24,7 +25,7 @@ const CategoryPage = async ({ params }: Props) => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 p-4">
-      {products.map((item) => (
+      {products.map((item, index) => (
         <Link
           href={`/product/${item.id}`}
           key={item.id}
@@ -37,7 +38,10 @@ const CategoryPage = async ({ params }: Props) => {
                 src={item.img}
                 alt={item.title}
                 fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
                 className="object-contain"
+                // Hanya berikan priority ke gambar pertama untuk optimasi
+                priority={index === 0}
               />
             </div>
           )}
