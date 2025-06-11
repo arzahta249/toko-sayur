@@ -6,29 +6,36 @@ import { prisma } from "./connect";
 declare module "next-auth" {
   interface Session {
     user: User & {
-      isAdmin: Boolean;
+      isAdmin: boolean;
     };
   }
 }
+
 declare module "next-auth/jwt" {
   interface JWT {
-    isAdmin: Boolean;
+    isAdmin: boolean;
   }
 }
 
 export const authOptions: NextAuthOptions = {
+  debug: false,
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
+  // Hapus custom cookies bagian state untuk pakai default dari NextAuth
   providers: [
     GoogleProvider({
-      // clientId: process.env.GOOGLE_ID as string,
-      // clientSecret: process.env.GOOGLE_SECRET as string,
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ token, session }) {
       if (token) {
@@ -42,7 +49,7 @@ export const authOptions: NextAuthOptions = {
           email: token.email!,
         },
       });
-      token.isAdmin = userInDb?.isAdmin!;
+      token.isAdmin = userInDb?.isAdmin ?? false;
       return token;
     },
   },

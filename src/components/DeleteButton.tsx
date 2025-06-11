@@ -14,20 +14,24 @@ const DeleteButton = ({ id }: { id: string }) => {
   }
 
   if (status === "unauthenticated" || !session?.user.isAdmin) {
-    return;
+    return null;
   }
 
   const handleDelete = async () => {
-    const res = await fetch(`http://localhost:3000/api/products/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`http://localhost:3000/api/products/${id}`, {
+        method: "DELETE",
+      });
 
-    if (res.status === 200) {
-      router.push("/menu");
-      toast("The product has been deleted!");
-    } else {
-      const data = await res.json();
-      toast.error(data.message);
+      if (res.ok) {
+        router.push("/menu");
+        toast("The product has been deleted!");
+      } else {
+        const data = await res.json();
+        toast.error(data.message || "Failed to delete product.");
+      }
+    } catch (error) {
+      toast.error("Network error, please try again.");
     }
   };
 
@@ -35,8 +39,9 @@ const DeleteButton = ({ id }: { id: string }) => {
     <button
       className="bg-red-400 hover:bg-red-500 text-white p-2 rounded-full ml-6"
       onClick={handleDelete}
+      aria-label="Delete product"
     >
-      <Image src="/delete.png" alt="" width={20} height={20} />
+      <Image src="/delete.png" alt="Delete icon" width={20} height={20} />
     </button>
   );
 };

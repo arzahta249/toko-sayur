@@ -3,58 +3,70 @@ import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 
 const LoginPage = () => {
   const { status } = useSession();
   const router = useRouter();
 
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
   if (status === "loading") {
     return <p>Loading...</p>;
   }
-  if (status === "authenticated") {
-    router.push("/")
-  }
 
   return (
-    <div className="p-4 h-[calc(100vh-6rem)] md:h-[calc(100vh-9rem)] flex items-center justify-center">
-      {/* BOX */}
-      <div className=" h-full shadow-2xl rounded-md flex flex-col md:flex-row md:h-[70%] md:w-full lg:w-[60%] 2xl:w-1/2">
-        {/* IMAGE CONTAINER */}
-        <div className="relative h-1/3 w-full md:h-full md:w-1/2">
-          <Image src="/loginBg.png" alt="" fill className="object-cover" />
+    <div className="p-4 min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-9rem)] flex items-center justify-center bg-gray-50 ">
+      <div className="shadow-2xl rounded-md overflow-hidden flex flex-col md:flex-row max-w-4xl w-full h-auto md:h-[70vh] bg-white">
+        <div className="relative h-48 md:h-full md:w-1/2 flex-shrink-0">
+          <Image
+            src="/loginBg.png"
+            alt="Login Background"
+            fill
+            className="object-cover md:rounded-l-md"
+            priority
+          />
         </div>
-        {/* FORM CONTAINER */}
-        <div className="p-10 flex flex-col gap-8 md:w-1/2">
-          <h1 className="font-bold text-xl xl:text-3xl">Welcome</h1>
-          <p>Log into your account or create a new one using social buttons</p>
+        <div className="p-8 md:p-10 flex flex-col justify-center gap-6 flex-1">
+          <h1 className="font-bold text-2xl md:text-3xl">Welcome</h1>
+          <p className="text-sm md:text-base">
+            Log into your account or create a new one using social buttons
+          </p>
+
           <button
-            className="flex gap-4 p-4 ring-1 ring-orange-100 rounded-md"
-            onClick={() => signIn("google")}
+            className="flex items-center gap-4 p-3 ring-1 ring-orange-100 rounded-md hover:bg-orange-50 transition"
+            onClick={() =>
+              signIn("google", { callbackUrl: "http://localhost:3000/" })
+            }
           >
             <Image
               src="/google.png"
-              alt=""
+              alt="Google Icon"
               width={20}
               height={20}
               className="object-contain"
             />
-            <span>Sign in with Google</span>
+            <span className="flex-grow text-left">Sign in with Google</span>
           </button>
-          <button className="flex gap-4 p-4 ring-1 ring-blue-100 rounded-md">
+
+          <button className="flex items-center gap-4 p-3 ring-1 ring-blue-100 rounded-md hover:bg-blue-50 transition">
             <Image
               src="/facebook.png"
-              alt=""
+              alt="Facebook Icon"
               width={20}
               height={20}
               className="object-contain"
             />
-            <span>Sign in with Facebook</span>
+            <span className="flex-grow text-left">Sign in with Facebook</span>
           </button>
+
           <p className="text-sm">
             Have a problem?
-            <Link className="underline" href="/">
-              {" "}
+            <Link className="underline ml-1" href="/">
               Contact us
             </Link>
           </p>

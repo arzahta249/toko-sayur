@@ -3,41 +3,54 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const getData = async (category:string)=>{
-  const res = await fetch(`http://localhost:3000/api/products?cat=${category}`,{
-    cache:"no-store"
-  })
+const getData = async (category: string) => {
+  const res = await fetch(`http://localhost:3000/api/products?cat=${category}`, {
+    cache: "no-store",
+  });
 
-  if(!res.ok){
+  if (!res.ok) {
     throw new Error("Failed!");
-    
   }
 
-  return res.json()
-}
+  return res.json();
+};
 
 type Props = {
-  params:{category:string}
-}
+  params: { category: string };
+};
 
-const CategoryPage = async ({params}:Props) => {
+const CategoryPage = async ({ params }: Props) => {
+  const products: ProductType[] = await getData(params.category);
 
-  const products:ProductType[] = await getData(params.category)
   return (
-    <div className="flex flex-wrap text-red-500">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 p-4">
       {products.map((item) => (
-        <Link className="w-full h-[60vh] border-r-2 border-b-2 border-red-500 sm:w-1/2 lg:w-1/3 p-4 flex flex-col justify-between group odd:bg-fuchsia-50" href={`/product/${item.id}`} key={item.id}>
-          {/* IMAGE CONTAINER */}
+        <Link
+          href={`/product/${item.id}`}
+          key={item.id}
+          className="bg-green-50 p-3 rounded-xl border border-teal-200 shadow-sm hover:shadow-md transition duration-300 hover:scale-[1.02]"
+        >
+          {/* IMAGE */}
           {item.img && (
-            <div className="relative h-[80%]">
-              <Image src={item.img} alt="" fill className="object-contain"/>
+            <div className="relative w-full h-40 mb-3">
+              <Image
+                src={item.img}
+                alt={item.title}
+                fill
+                className="object-contain"
+              />
             </div>
           )}
-          {/* TEXT CONTAINER */}
-          <div className="flex items-center justify-between font-bold">
-            <h1 className="text-2xl uppercase p-2">{item.title}</h1>
-            <h2 className="group-hover:hidden text-xl">${item.price}</h2>
-            <button className="hidden group-hover:block uppercase bg-red-500 text-white p-2 rounded-md">Add to Cart</button>
+
+          {/* TEXT */}
+          <div className="flex flex-col justify-between gap-2 text-teal-800">
+            <h2 className="text-sm font-semibold uppercase">{item.title}</h2>
+            <p className="text-sm font-medium text-teal-600">
+              Rp. {Number(item.price).toLocaleString("id-ID")}
+            </p>
+            <button className="block mt-2 bg-teal-600 text-white text-xs py-1 rounded-md hover:bg-teal-700 transition">
+              Buy Now
+            </button>
           </div>
         </Link>
       ))}

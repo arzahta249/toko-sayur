@@ -16,9 +16,7 @@ export const useCartStore = create(
       totalPrice: INITIAL_STATE.totalPrice,
       addToCart(item) {
         const products = get().products;
-        const productInState = products.find(
-          (product) => product.id === item.id
-        );
+        const productInState = products.find((product) => product.id === item.id);
 
         if (productInState) {
           const updatedProducts = products.map((product) =>
@@ -28,7 +26,7 @@ export const useCartStore = create(
                   quantity: item.quantity + product.quantity,
                   price: item.price + product.price,
                 }
-              : item
+              : product
           );
           set((state) => ({
             products: updatedProducts,
@@ -50,7 +48,17 @@ export const useCartStore = create(
           totalPrice: state.totalPrice - item.price,
         }));
       },
+      clearCart() {
+        set({
+          products: [],
+          totalItems: 0,
+          totalPrice: 0,
+        });
+      },
     }),
-    { name: "cart", skipHydration: true }
+    {
+      name: "cart",
+      skipHydration: true,
+    }
   )
 );

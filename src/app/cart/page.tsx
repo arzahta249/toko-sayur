@@ -1,95 +1,203 @@
 "use client";
+
 import { useCartStore } from "@/utils/store";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CartPage = () => {
-  const { products, totalItems, totalPrice, removeFromCart } = useCartStore();
+  const {
+    products,
+    totalItems,
+    totalPrice,
+    removeFromCart,
+    clearCart,
+  } = useCartStore();
   const { data: session } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     useCartStore.persist.rehydrate();
   }, []);
 
+  if (!session) {
+    return (
+      <>
+        <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-teal-100 to-fuchsia-200 px-4">
+          <div className="max-w-md bg-white rounded-lg shadow-lg p-8 text-center fade-in">
+            <h2 className="text-2xl font-bold mb-4 text-teal-700">Kamu belum login</h2>
+            <p className="mb-6 text-gray-600">
+              Silakan login terlebih dahulu untuk melihat dan mengelola keranjangmu.
+            </p>
+            <button
+              onClick={() => router.push("/login")}
+              className="bg-teal-600 text-white px-6 py-3 rounded-md font-semibold shadow-md hover:bg-teal-700 transition-colors duration-300"
+            >
+              Login Sekarang
+            </button>
+          </div>
+        </div>
+        <style jsx>{`
+          .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+          }
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
+      </>
+    );
+  }
+
   const handleCheckout = async () => {
-    if (!session) {
-      router.push("/login");
-    } else {
-      try {
-        const res = await fetch("http://localhost:3000/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            price: totalPrice,
-            products,
-            status: "Not Paid!",
-            userEmail: session.user.email,
-          }),
-        });
-        const data =await res.json()
-        router.push(`/pay/${data.id}`)
-      } catch (err) {
-        console.log(err);
-      }
+    if (products.length === 0) {
+      toast.warning("Anda belum memesan produk.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          price: totalPrice,
+          products,
+          status: "Not Paid!",
+          userEmail: session.user.email,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Gagal membuat pesanan");
+
+      const data = await res.json();
+      clearCart();
+      toast.success("Anda akan diarahkan ke menu pembayaran.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+
+      setTimeout(() => {
+        router.push(`/pay/${data.id}`);
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error("Terjadi kesalahan saat checkout.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-9rem)] flex flex-col text-red-500 lg:flex-row">
-      {/* PRODUCTS CONTAINER */}
-      <div className="h-1/2 p-4 flex flex-col justify-center overflow-scroll lg:h-full lg:w-2/3 2xl:w-1/2 lg:px-20 xl:px-40">
-        {/* SINGLE ITEM */}
-        {products.map((item) => (
-          <div className="flex items-center justify-between mb-4" key={item.id}>
-            {item.img && (
-              <Image src={item.img} alt="" width={100} height={100} />
-            )}
-            <div className="">
-              <h1 className="uppercase text-xl font-bold">
-                {item.title} x{item.quantity}
-              </h1>
-              <span>{item.optionTitle}</span>
-            </div>
-            <h2 className="font-bold">${item.price}</h2>
-            <span
-              className="cursor-pointer"
-              onClick={() => removeFromCart(item)}
+    <>
+      <div className="min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-9rem)] flex flex-col lg:flex-row items-center justify-center gap-6 p-6 bg-white text-teal-600">
+        {/* PRODUCTS CONTAINER */}
+        <div className="w-full max-w-4xl lg:w-2/3 flex flex-col gap-4 overflow-y-auto">
+          {products.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between p-4 border rounded-lg shadow-sm"
             >
-              X
-            </span>
+              {item.img && (
+                <Image src={item.img} alt="" width={100} height={100} className="object-contain" />
+              )}
+              <div className="flex-1 px-4">
+                <h1 className="uppercase text-lg font-semibold">
+                  {item.title} x{item.quantity}
+                </h1>
+                <span className="text-sm text-gray-600">{item.optionTitle}</span>
+              </div>
+              <h2 className="font-bold whitespace-nowrap">
+                Rp.{Number(item.price).toLocaleString("id-ID")}
+              </h2>
+              <span
+                className="cursor-pointer text-red-500 font-bold text-lg px-2"
+                onClick={() => removeFromCart(item)}
+              >
+                ×
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* PAYMENT CONTAINER */}
+        <div className="w-full max-w-md lg:w-1/3 p-6 bg-fuchsia-50 rounded-lg shadow-md">
+          <div className="space-y-4 text-base md:text-lg">
+            <div className="flex justify-between">
+              <span>Subtotal ({totalItems} items)</span>
+              <span>Rp.{Number(totalPrice).toLocaleString("id-ID")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Service Cost</span>
+              <span>Rp.0</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Delivery Cost</span>
+              <span className="text-green-500 font-medium">FREE!</span>
+            </div>
+            <hr />
+            <div className="flex justify-between font-bold">
+              <span>Total (Incl. VAT)</span>
+              <span>Rp.{Number(totalPrice).toLocaleString("id-ID")}</span>
+            </div>
+            <button
+              onClick={handleCheckout}
+              disabled={loading}
+              className={`w-full py-3 rounded-md text-white font-semibold flex items-center justify-center gap-2 transition-all duration-300
+              ${loading ? "bg-teal-500 cursor-not-allowed opacity-70" : "bg-teal-700 hover:bg-teal-800 hover:scale-105"}
+            `}
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : (
+                "CHECKOUT"
+              )}
+            </button>
           </div>
-        ))}
+        </div>
       </div>
-      {/* PAYMENT CONTAINER */}
-      <div className="h-1/2 p-4 bg-fuchsia-50 flex flex-col gap-4 justify-center lg:h-full lg:w-1/3 2xl:w-1/2 lg:px-20 xl:px-40 2xl:text-xl 2xl:gap-6">
-        <div className="flex justify-between">
-          <span className="">Subtotal ({totalItems} items)</span>
-          <span className="">${totalPrice}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="">Service Cost</span>
-          <span className="">$0.00</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="">Delivery Cost</span>
-          <span className="text-green-500">FREE!</span>
-        </div>
-        <hr className="my-2" />
-        <div className="flex justify-between">
-          <span className="">TOTAL(INCL. VAT)</span>
-          <span className="font-bold">${totalPrice}</span>
-        </div>
-        <button
-          className="bg-red-500 text-white p-3 rounded-md w-1/2 self-end"
-          onClick={handleCheckout}
-        >
-          CHECKOUT
-        </button>
-      </div>
-    </div>
+      <ToastContainer theme="dark" />
+    </>
   );
 };
 

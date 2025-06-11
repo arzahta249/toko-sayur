@@ -18,13 +18,19 @@ export type ProductType = {
 
 export type OrderType = {
   id: string;
-  userEmail: string;
+  userEmail: string; // cukup ini untuk email
   price: number;
   products: CartItemType[];
   status: string;
   createdAt: Date;
-  intent_id?: String;
+  order_id?: string; // sudah ganti dari intent_id
+  address?: string;
+  phone?: string;
+
+  name?: string;
 };
+
+
 
 export type CartItemType = {
   id: string;
@@ -44,4 +50,5 @@ export type CartType = {
 export type ActionTypes = {
   addToCart:(item:CartItemType)=> void;
   removeFromCart:(item:CartItemType)=> void;
+  clearCart: () => void;
 }
