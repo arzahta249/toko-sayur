@@ -75,6 +75,7 @@ model Product {
   desc       String
   img        String?
   price      Decimal
+  stock      Int
   isFeatured Boolean  @default(false)
   options    Json[]
   category   Category @relation(fields: [catSlug], references: [slug], onDelete: Cascade)

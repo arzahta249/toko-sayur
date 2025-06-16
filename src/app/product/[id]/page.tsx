@@ -82,6 +82,7 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
           />
         </div>
       )}
+
       {/* TEXT CONTAINER */}
       <div className="h-1/2 flex flex-col gap-4 md:h-[70%] md:justify-center md:gap-6 xl:gap-8">
         <h1 className="text-3xl font-bold uppercase flex justify-between items-center">
@@ -90,9 +91,23 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
         </h1>
         <p>{product.desc}</p>
         <Price product={product} />
+
+        {/* STOCK DISPLAY */}
+        <p className="text-sm text-gray-700">
+          Stok tersedia:{" "}
+          <span
+            className={
+              product.stock > 0
+                ? "text-green-600 font-semibold"
+                : "text-red-600 font-semibold"
+            }
+          >
+            {product.stock > 0 ? product.stock : "Stok habis"}
+          </span>
+        </p>
       </div>
 
-      {/* SINGLE TOAST NOTIFICATION */}
+      {/* TOAST */}
       <ToastContainer
         position="bottom-right"
         autoClose={3000}

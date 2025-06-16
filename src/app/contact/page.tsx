@@ -250,7 +250,7 @@ export default function ContactPage() {
     <div className="bg-gray-100 min-h-screen py-10 px-4">
       <section className="text-center mb-10">
         <h1 className="text-4xl font-bold">#BapakTani</h1>
-        <p className="text-gray-600 mt-2">"Butuh bantuan? Kirim pesan ke kami!"</p>
+        <p className="text-gray-600 mt-2">&quot;Butuh bantuan? Kirim pesan ke kami!&quot;</p>
       </section>
 
       <section className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 mb-10 px-4">

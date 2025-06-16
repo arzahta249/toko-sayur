@@ -15,14 +15,38 @@ const CartPage = () => {
     totalPrice,
     removeFromCart,
     clearCart,
+    increaseQuantity,
+    decreaseQuantity,
   } = useCartStore();
+
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [stockMap, setStockMap] = useState<{ [id: string]: number }>({});
 
   useEffect(() => {
     useCartStore.persist.rehydrate();
   }, []);
+
+  useEffect(() => {
+    const fetchStock = async () => {
+      const newStockMap: { [id: string]: number } = {};
+      for (const item of products) {
+        try {
+          const res = await fetch(`/api/products/${item.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            newStockMap[item.id] = data.stock;
+          }
+        } catch (err) {
+          console.error("Gagal mengambil stok produk:", err);
+        }
+      }
+      setStockMap(newStockMap);
+    };
+
+    fetchStock();
+  }, [products]);
 
   if (!session) {
     return (
@@ -68,6 +92,16 @@ const CartPage = () => {
         autoClose: 3000,
       });
       return;
+    }
+
+    for (const item of products) {
+      const available = stockMap[item.id];
+      if (available !== undefined && item.quantity > available) {
+        toast.error(`Stok untuk ${item.title} hanya tersisa ${available}`, {
+          position: "top-center",
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -117,16 +151,41 @@ const CartPage = () => {
               className="flex items-center justify-between p-4 border rounded-lg shadow-sm"
             >
               {item.img && (
-                <Image src={item.img} alt="" width={100} height={100} className="object-contain" />
+                <Image
+                  src={item.img}
+                  alt={item.title}
+                  width={100}
+                  height={100}
+                  className="object-contain"
+                />
               )}
               <div className="flex-1 px-4">
-                <h1 className="uppercase text-lg font-semibold">
-                  {item.title} x{item.quantity}
-                </h1>
-                <span className="text-sm text-gray-600">{item.optionTitle}</span>
+                <h1 className="uppercase text-lg font-semibold">{item.title}</h1>
+                <p className="text-sm text-gray-600 mb-2">
+                  {item.optionTitle} | Stok: {stockMap[item.id] ?? "..."}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => decreaseQuantity(item)}
+                    className="px-2 py-1 text-white bg-teal-500 rounded"
+                  >
+                    -
+                  </button>
+                  <span className="text-md font-semibold">{item.quantity}</span>
+                  <button
+                    onClick={() =>
+                      item.quantity < (stockMap[item.id] || 0)
+                        ? increaseQuantity(item)
+                        : toast.error("Melebihi stok!")
+                    }
+                    className="px-2 py-1 text-white bg-teal-500 rounded"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-              <h2 className="font-bold whitespace-nowrap">
-                Rp.{Number(item.price).toLocaleString("id-ID")}
+              <h2 className="font-bold whitespace-nowrap text-right">
+                Rp.{(item.price * item.quantity).toLocaleString("id-ID")}
               </h2>
               <span
                 className="cursor-pointer text-red-500 font-bold text-lg px-2"

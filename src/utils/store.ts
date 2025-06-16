@@ -1,64 +1,96 @@
-import { ActionTypes, CartType } from "@/types/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-const INITIAL_STATE = {
-  products: [],
-  totalItems: 0,
-  totalPrice: 0,
-};
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  img?: string;
+  quantity: number;
+  optionTitle?: string;
+}
 
-export const useCartStore = create(
-  persist<CartType & ActionTypes>(
+interface CartType {
+  products: Product[];
+  totalItems: number;
+  totalPrice: number;
+}
+
+interface ActionTypes {
+  addToCart: (item: Product) => void;
+  removeFromCart: (item: Product) => void;
+  clearCart: () => void;
+  increaseQuantity: (item: Product) => void;
+  decreaseQuantity: (item: Product) => void;
+}
+
+export const useCartStore = create<CartType & ActionTypes>()(
+  persist(
     (set, get) => ({
-      products: INITIAL_STATE.products,
-      totalItems: INITIAL_STATE.totalItems,
-      totalPrice: INITIAL_STATE.totalPrice,
-      addToCart(item) {
-        const products = get().products;
-        const productInState = products.find((product) => product.id === item.id);
+      products: [],
+      totalItems: 0,
+      totalPrice: 0,
 
-        if (productInState) {
-          const updatedProducts = products.map((product) =>
-            product.id === productInState.id
-              ? {
-                  ...item,
-                  quantity: item.quantity + product.quantity,
-                  price: item.price + product.price,
-                }
-              : product
+      addToCart: (item) => {
+        const products = get().products;
+        const existing = products.find((p) => p.id === item.id);
+        let newProducts;
+
+        if (existing) {
+          newProducts = products.map((p) =>
+            p.id === item.id ? { ...p, quantity: p.quantity + item.quantity } : p
           );
-          set((state) => ({
-            products: updatedProducts,
-            totalItems: state.totalItems + item.quantity,
-            totalPrice: state.totalPrice + item.price,
-          }));
         } else {
-          set((state) => ({
-            products: [...state.products, item],
-            totalItems: state.totalItems + item.quantity,
-            totalPrice: state.totalPrice + item.price,
-          }));
+          newProducts = [...products, item];
         }
+
+        const newTotalItems = newProducts.reduce((acc, item) => acc + item.quantity, 0);
+        const newTotalPrice = newProducts.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0
+        );
+
+        set({ products: newProducts, totalItems: newTotalItems, totalPrice: newTotalPrice });
       },
-      removeFromCart(item) {
-        set((state) => ({
-          products: state.products.filter((product) => product.id !== item.id),
-          totalItems: state.totalItems - item.quantity,
-          totalPrice: state.totalPrice - item.price,
-        }));
+
+      removeFromCart: (item) => {
+        const newProducts = get().products.filter((p) => p.id !== item.id);
+        const newTotalItems = newProducts.reduce((acc, item) => acc + item.quantity, 0);
+        const newTotalPrice = newProducts.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0
+        );
+        set({ products: newProducts, totalItems: newTotalItems, totalPrice: newTotalPrice });
       },
-      clearCart() {
-        set({
-          products: [],
-          totalItems: 0,
-          totalPrice: 0,
-        });
+
+      clearCart: () => {
+        set({ products: [], totalItems: 0, totalPrice: 0 });
+      },
+
+      increaseQuantity: (item) => {
+        const products = get().products.map((p) =>
+          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p
+        );
+        const totalItems = products.reduce((acc, item) => acc + item.quantity, 0);
+        const totalPrice = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        set({ products, totalItems, totalPrice });
+      },
+
+      decreaseQuantity: (item) => {
+        const products = get().products
+          .map((p) =>
+            p.id === item.id
+              ? { ...p, quantity: Math.max(1, p.quantity - 1) }
+              : p
+          )
+          .filter((p) => p.quantity > 0);
+        const totalItems = products.reduce((acc, item) => acc + item.quantity, 0);
+        const totalPrice = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        set({ products, totalItems, totalPrice });
       },
     }),
     {
-      name: "cart",
-      skipHydration: true,
+      name: "cart-storage",
     }
   )
 );
