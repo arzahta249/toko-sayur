@@ -217,10 +217,6 @@ const CartPage = () => {
                 .toLocaleString("id-ID")}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>Delivery</span>
-            <span className="text-green-600 font-medium">Gratis</span>
-          </div>
           <hr />
           <div className="flex justify-between font-bold">
             <span>Total</span>
