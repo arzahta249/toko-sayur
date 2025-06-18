@@ -13,6 +13,7 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
   const { data: session, status } = useSession();
   const [product, setProduct] = useState<ProductType | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [editedStock, setEditedStock] = useState<number | null>(null);
   const addToCart = useCartStore((state) => state.addToCart);
 
   useEffect(() => {
@@ -60,6 +61,31 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
     });
 
     toast.success("Produk ditambahkan ke keranjang!");
+  };
+
+  const handleStockUpdate = async () => {
+    if (editedStock === null || editedStock < 0) return;
+
+    try {
+      const res = await fetch(`/api/products/${product?.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ stock: editedStock }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setProduct(updated);
+        toast.success("Stok berhasil diperbarui");
+        setEditedStock(null);
+      } else {
+        toast.error("Gagal memperbarui stok");
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat memperbarui stok");
+    }
   };
 
   if (status === "loading") {
@@ -137,13 +163,31 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
 
         <p className="text-sm">
           Stok:
-          <span
-            className={`ml-2 font-medium ${
-              product.stock > 0 ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {product.stock > 0 ? product.stock : "Stok habis"}
-          </span>
+          {session?.user?.isAdmin ? (
+            <span className="ml-2 flex items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                value={editedStock !== null ? editedStock : product.stock}
+                onChange={(e) => setEditedStock(Number(e.target.value))}
+                className="w-20 text-teal-700 border border-teal-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleStockUpdate}
+                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+              >
+                Simpan
+              </button>
+            </span>
+          ) : (
+            <span
+              className={`ml-2 font-medium ${
+                product.stock > 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {product.stock > 0 ? product.stock : "Stok habis"}
+            </span>
+          )}
         </p>
 
         <button
