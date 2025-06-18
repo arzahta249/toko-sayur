@@ -40,7 +40,7 @@ const PayPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -70,7 +70,7 @@ const PayPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/midtrans/${id}`, { method: "POST" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/midtrans/${id}`, { method: "POST" });
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -97,7 +97,7 @@ const PayPage = () => {
 
     setLoading(true);
     try {
-      await fetch(`/api/confirm-cod/${id}`, { method: "PUT" });
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/confirm-cod/${id}`, { method: "PUT" });
       router.push(`/success?order_id=${id}&method=cod`);
     } catch (error) {
       console.error(error);

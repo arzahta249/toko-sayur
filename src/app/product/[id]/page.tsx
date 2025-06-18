@@ -33,7 +33,7 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`/api/products/${params.id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${params.id}`, {
           cache: "no-store",
         });
         if (res.ok) {
@@ -75,7 +75,7 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
     if (editedStock === null || editedStock < 0) return;
 
     try {
-      const res = await fetch(`/api/products/${product?.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${product?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

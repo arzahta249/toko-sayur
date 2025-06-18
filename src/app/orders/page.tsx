@@ -21,13 +21,16 @@ const OrdersPage = () => {
 
   const { isLoading, error, data } = useQuery({
     queryKey: ["orders"],
-    queryFn: () => fetch("/api/orders").then((res) => res.json()),
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`).then((res) =>
+        res.json()
+      ),
     enabled: status === "authenticated",
   });
 
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => {
-      return fetch(`/api/orders/${id}`, {
+      return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +49,7 @@ const OrdersPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
-      return fetch(`/api/orders/${id}`, {
+      return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${id}`, {
         method: "DELETE",
       });
     },

@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import Image from "next/image";
 
 interface MessageDetail {
   id: string;
@@ -44,7 +45,7 @@ export default function ContactPage() {
 
   useEffect(() => {
     if (!isAdmin) return;
-    fetch('/api/contact')
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/contact`)
       .then((res) => res.json())
       .then((data) => setMessages(data))
       .catch(() => toast.error('Gagal memuat pesan'));
@@ -56,7 +57,7 @@ export default function ContactPage() {
       setReply('');
       return;
     }
-    fetch(`/api/contact/${selectedId}`)
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/contact/${selectedId}`)
       .then((res) => res.json())
       .then((data) => {
         setDetail(data);
@@ -66,7 +67,7 @@ export default function ContactPage() {
   }, [selectedId]);
 
   const fetchLatestMessage = (email: string) => {
-    fetch(`/api/contact?email=${encodeURIComponent(email)}`)
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/contact?email=${encodeURIComponent(email)}`)
       .then((res) => res.json())
       .then((data: MessageDetail[]) => {
         if (!Array.isArray(data) || data.length === 0) {
@@ -98,7 +99,7 @@ export default function ContactPage() {
     if (!selectedId || !reply.trim()) return;
     setIsReplying(true);
     try {
-      const res = await fetch(`/api/contact/${selectedId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/contact/${selectedId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reply }),
@@ -123,7 +124,7 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -146,7 +147,7 @@ export default function ContactPage() {
     if (!confirmed) return;
   
     try {
-      const res = await fetch(`/api/contact/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/contact/${id}`, {
         method: "DELETE",
       });
   
@@ -265,11 +266,14 @@ export default function ContactPage() {
           </ul>
         </div>
         <div>
-          <img
-            src="/logotokoAI.jpg"
-            alt="Lokasi"
-            className="rounded-md object-cover w-full h-[300px]"
-          />
+        <Image
+          src="/logotokoAI.jpg"
+          alt="Lokasi"
+          width={800} // sesuaikan dengan ukuran yang sesuai
+          height={300}
+          className="rounded-md object-cover w-full h-[300px]"
+          priority
+        />
         </div>
       </section>
 
@@ -291,12 +295,18 @@ export default function ContactPage() {
           <h2 className="text-base font-semibold mb-4 text-center">Profil Tim</h2>
           <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-gray-50">
             <div className="flex items-center gap-4">
-              <img src="/logotokoAI.jpg" alt="Developer" className="w-20 h-20 object-cover rounded-full" />
-              <div>
-                <p><strong>Nama:</strong> M Alifi Arzahta</p>
-                <p><strong>Kontak:</strong> 082314169288</p>
-                <p><strong>Email:</strong> marzaalifi@gmail.com</p>
-              </div>
+            <Image
+              src="/logotokoAI.jpg"
+              alt="Developer"
+              width={80}
+              height={80}
+              className="w-20 h-20 object-cover rounded-full"
+            />
+            <div>
+              <p><strong>Nama:</strong> M Alifi Arzahta</p>
+              <p><strong>Kontak:</strong> 082314169288</p>
+              <p><strong>Email:</strong> marzaalifi@gmail.com</p>
+            </div>
             </div>
           </div>
         </section>

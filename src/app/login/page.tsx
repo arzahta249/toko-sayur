@@ -40,7 +40,7 @@ const LoginPage = () => {
           <button
             className="flex items-center gap-4 p-3 ring-1 ring-orange-100 rounded-md hover:bg-orange-50 transition"
             onClick={() =>
-              signIn("google", { callbackUrl: "http://localhost:3000/" })
+              signIn("google", { callbackUrl: "/" })
             }
           >
             <Image

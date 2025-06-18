@@ -1,21 +1,40 @@
+"use client";
+
 import { ProductType } from "@/types/types";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const getData = async () => {
-  const res = await fetch("http://localhost:3000/api/products", {
-    cache: "no-store",
-  });
+const Featured = () => {
+  const [featuredProducts, setFeaturedProducts] = useState<ProductType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!res.ok) {
-    throw new Error("Failed!");
-  }
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await fetch("/api/products", {
+          cache: "no-store",
+        });
 
-  return res.json();
-};
+        if (!res.ok) {
+          throw new Error("Failed!");
+        }
 
-const Featured = async () => {
-  const featuredProducts: ProductType[] = await getData();
+        const data = await res.json();
+        setFeaturedProducts(data);
+      } catch (error) {
+        console.error(error);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getData();
+  }, []);
+
+  if (loading) return <p className="text-center py-12">Loading featured products...</p>;
+  if (error) return <p className="text-center text-red-500 py-12">Failed to load featured products.</p>;
 
   return (
     <section className="w-full max-w-[1200px] mx-auto px-4 py-12 text-black">
@@ -27,7 +46,6 @@ const Featured = async () => {
             key={item.id}
             className="flex-shrink-0 w-[280px] md:w-[360px] xl:w-[400px] bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
           >
-            {/* IMAGE CONTAINER */}
             {item.img && (
               <div className="relative h-[250px] md:h-[300px] xl:h-[350px] rounded-t-lg overflow-hidden">
                 <Image
@@ -40,7 +58,6 @@ const Featured = async () => {
               </div>
             )}
 
-            {/* TEXT CONTAINER */}
             <div className="p-4 flex flex-col items-center text-center gap-3">
               <h3 className="text-xl md:text-2xl font-semibold uppercase">{item.title}</h3>
               <p className="text-gray-700 text-sm md:text-base">{item.desc}</p>

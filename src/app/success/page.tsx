@@ -23,12 +23,12 @@ const SuccessPage = () => {
       }
 
       try {
-        const res = await fetch(`/api/confirm-cod/${orderId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/confirm-cod/${orderId}`, {
           method: "PUT",
         });
-
+        
         if (!res.ok) {
-          const data = await res.json();
+          const data = await res.json();        
           if (data.message === "Pesanan sudah dikonfirmasi") {
             // Treat as success if already confirmed
             setMessage("Pesanan telah dibuat. Lihat detail lebih lanjut di Orders.");

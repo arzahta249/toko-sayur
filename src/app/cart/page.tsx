@@ -31,7 +31,7 @@ const CartPage = () => {
       const newStockMap: { [id: string]: number } = {};
       for (const item of products) {
         try {
-          const res = await fetch(`/api/products/${item.id}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${item.id}`);;
           if (res.ok) {
             const data = await res.json();
             newStockMap[item.id] = data.stock;
@@ -72,7 +72,7 @@ const CartPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/orders", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

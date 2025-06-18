@@ -10,14 +10,14 @@ const DeleteOrderButton = ({ id }: { id: string }) => {
     if (!confirm("Are you sure want to delete this order?")) return;
 
     try {
-      const res = await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${id}`, {
         method: "DELETE",
       });
-
+      
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || "Failed to delete order");
-      }
+        throw new Error(data.message || "Gagal menghapus pesanan");
+      }      
 
       toast.success("Order deleted!");
       router.refresh(); // refresh halaman supaya update
