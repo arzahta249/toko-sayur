@@ -5,15 +5,27 @@ import Link from "next/link";
 
 const UserLinks = () => {
   const { status } = useSession();
+  const linkStyle =
+    "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-[2px] after:bg-teal-700 after:transition-all hover:after:w-full hover:text-teal-700 active:text-orange-500";
+
   return (
-    <div>
+    <div className="flex gap-4 items-center">
       {status === "authenticated" ? (
-        <div>
-          <Link href="/orders">Orders</Link>
-          <span className="ml-4 cursor-pointer" onClick={() => signOut()}>Logout</span>
-        </div>
+        <>
+          <Link href="/orders" className={linkStyle}>
+            Orders
+          </Link>
+          <span
+            className={`${linkStyle} cursor-pointer text-red-600`}
+            onClick={() => signOut()}
+          >
+            Logout
+          </span>
+        </>
       ) : (
-        <Link href="/login">Login</Link>
+        <Link href="/login" className={linkStyle}>
+          Login
+        </Link>
       )}
     </div>
   );

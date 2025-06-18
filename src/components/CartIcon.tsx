@@ -19,6 +19,10 @@ const CartIcon = () => {
 
   if (!mounted) return null;
 
+  // Gaya hover untuk link navigasi
+  const linkStyle =
+    "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-[2px] after:bg-teal-700 after:transition-all hover:after:w-full hover:text-teal-700 active:text-orange-500";
+
   if (session?.user?.isAdmin) {
     return (
       <div className="flex items-center gap-4">
@@ -31,7 +35,8 @@ const CartIcon = () => {
             className="object-contain"
           />
         </div>
-        <Link href="/add" className="p-1 bg-teal-700 text-white rounded-md inline-block">
+        {/* Jangan pakai linkStyle di sini */}
+        <Link href="/add" className="p-1 bg-teal-700 text-white rounded-md hover:bg-teal-800 transition">
           Add product
         </Link>
       </div>
@@ -39,7 +44,7 @@ const CartIcon = () => {
   }
 
   return (
-    <Link href="/cart" className="flex items-center gap-4">
+    <Link href="/cart" className={`flex items-center gap-2 ${linkStyle}`}>
       <div className="relative w-8 h-8 md:w-5 md:h-5">
         <Image
           src="/cart.png"
@@ -49,7 +54,11 @@ const CartIcon = () => {
           className="object-contain"
         />
       </div>
-      {status === "loading" ? <span>Cart (...) </span> : <span>Cart ({displayTotalItems})</span>}
+      {status === "loading" ? (
+        <span>Cart (...) </span>
+      ) : (
+        <span>Cart ({displayTotalItems})</span>
+      )}
     </Link>
   );
 };
