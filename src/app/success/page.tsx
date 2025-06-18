@@ -9,12 +9,13 @@ const SuccessPage = () => {
   const router = useRouter();
   const orderId = searchParams.get("order_id");
   const method = searchParams.get("method");
+
   const [message, setMessage] = useState("Memproses pesanan Anda...");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const confirm = async () => {
+    const confirmOrder = async () => {
       if (!orderId) {
         setMessage("ID pesanan tidak ditemukan.");
         setError(true);
@@ -23,15 +24,12 @@ const SuccessPage = () => {
       }
 
       try {
-        const res = await fetch(`/api/confirm-cod/${orderId}`, {
-          method: "PUT",
-        });
-
+        const res = await fetch(`/api/confirm-cod/${orderId}`, { method: "PUT" });
         const data = await res.json();
 
         if (!res.ok) {
           if (data.message === "Order sudah dikonfirmasi sebelumnya.") {
-            setMessage("Pesanan telah dibuat. Lihat detail lebih lanjut di Orders.");
+            setMessage("Pesanan telah dibuat. Lihat detail di halaman Orders.");
             setError(false);
           } else {
             throw new Error(data.message || "Gagal konfirmasi pesanan.");
@@ -53,7 +51,7 @@ const SuccessPage = () => {
     };
 
     if (orderId && method) {
-      confirm();
+      confirmOrder();
     }
   }, [orderId, method]);
 
@@ -72,13 +70,13 @@ const SuccessPage = () => {
 
       <div
         className={`rounded-2xl shadow-xl p-10 max-w-md w-full text-center transition-all duration-300
-          ${
-            loading
-              ? "bg-white text-gray-800"
-              : error
-              ? "bg-red-100 text-red-700"
-              : "bg-teal-700 text-white"
-          }`}
+        ${
+          loading
+            ? "bg-white text-gray-800"
+            : error
+            ? "bg-red-100 text-red-700"
+            : "bg-teal-700 text-white"
+        }`}
       >
         {loading ? (
           <div className="flex flex-col items-center gap-4">
@@ -95,12 +93,12 @@ const SuccessPage = () => {
                 r="10"
                 stroke="currentColor"
                 strokeWidth="4"
-              ></circle>
+              />
               <path
                 className="opacity-75"
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8v8z"
-              ></path>
+              />
             </svg>
             <p className="text-lg font-medium">{message}</p>
           </div>
