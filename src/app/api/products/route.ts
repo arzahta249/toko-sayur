@@ -21,12 +21,34 @@ export const GET = async (req: NextRequest) => {
     );
   }
 };
+
+// CREATE NEW PRODUCT
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
+
+    const { title, desc, price, catSlug, img, stock, options } = body;
+
+    // Validasi sederhana (opsional)
+    if (!title || !desc || !price || !catSlug || !img || stock === undefined) {
+      return new NextResponse(
+        JSON.stringify({ message: "Missing required fields" }),
+        { status: 400 }
+      );
+    }
+
     const product = await prisma.product.create({
-      data: body,
+      data: {
+        title,
+        desc,
+        price,
+        catSlug,
+        img,
+        stock,
+        options,
+      },
     });
+
     return new NextResponse(JSON.stringify(product), { status: 201 });
   } catch (err) {
     console.log(err);

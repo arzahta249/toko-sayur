@@ -9,6 +9,14 @@ import { ProductType } from "@/types/types";
 import DeleteButton from "@/components/DeleteButton";
 import "react-toastify/dist/ReactToastify.css";
 
+const formatRupiah = (value: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value).replace("Rp", "Rp ");
+};
+
 const SingleProductPage = ({ params }: { params: { id: string } }) => {
   const { data: session, status } = useSession();
   const [product, setProduct] = useState<ProductType | null>(null);
@@ -141,9 +149,7 @@ const SingleProductPage = ({ params }: { params: { id: string } }) => {
 
         <p className="text-lg font-medium">
           Harga:
-          <span className="ml-2">
-            Rp {product.price.toLocaleString("id-ID")}
-          </span>
+          <span className="ml-2">{formatRupiah(product.price)}</span>
         </p>
 
         <div className="flex items-center gap-3">

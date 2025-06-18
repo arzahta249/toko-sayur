@@ -11,6 +11,7 @@ type Inputs = {
   desc: string;
   price: number;
   catSlug: string;
+  stock: number; // ✅ Tambahan field stok
 };
 
 type Option = {
@@ -25,6 +26,7 @@ const AddPage = () => {
     desc: "",
     price: 0,
     catSlug: "",
+    stock: 0, // ✅ Default stok
   });
 
   const [option, setOption] = useState<Option>({
@@ -41,7 +43,7 @@ const AddPage = () => {
 
   if (status === "unauthenticated" || !session?.user.isAdmin) {
     router.push("/");
-    return null; // agar tidak render halaman selanjutnya
+    return null;
   }
 
   const handleChange = (
@@ -50,7 +52,7 @@ const AddPage = () => {
     const { name, value } = e.target;
     setInputs((prev) => ({
       ...prev,
-      [name]: name === "price" ? Number(value) : value,
+      [name]: name === "price" || name === "stock" ? Number(value) : value,
     }));
   };
 
@@ -78,18 +80,14 @@ const AddPage = () => {
 
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "restaurant"); // pastikan preset ini benar di Cloudinary
+    data.append("upload_preset", "restaurant");
 
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/lamadev/upload",
-      {
-        method: "POST",
-        body: data,
-      }
-    );
+    const res = await fetch("https://api.cloudinary.com/v1_1/lamadev/upload", {
+      method: "POST",
+      body: data,
+    });
 
     const resData = await res.json();
-    console.log("Cloudinary response:", resData);
 
     if (!res.ok) {
       toast.error("Gagal upload gambar: " + (resData.error?.message || ""));
@@ -211,6 +209,20 @@ const AddPage = () => {
             placeholder="Sayuran"
             className="ring-1 ring-teal-700 p-4 rounded-sm placeholder:text-teal-500 outline-none"
             required
+          />
+        </div>
+
+        {/* Stock */}
+        <div className="w-full flex flex-col gap-2">
+          <label className="text-sm">Stock</label>
+          <input
+            type="number"
+            name="stock"
+            onChange={handleChange}
+            placeholder="Jumlah stok"
+            className="ring-1 ring-teal-700 p-4 rounded-sm placeholder:text-teal-500 outline-none"
+            required
+            min={0}
           />
         </div>
 
