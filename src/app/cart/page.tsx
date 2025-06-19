@@ -27,6 +27,10 @@ const CartPage = () => {
   }, []);
 
   useEffect(() => {
+    setSelectedIds(products.map((item) => item.id));
+  }, [products]);
+
+  useEffect(() => {
     const fetchStock = async () => {
       const newStockMap: { [id: string]: number } = {};
       for (const item of products) {
@@ -80,9 +84,11 @@ const CartPage = () => {
             (acc, item) => acc + item.price * item.quantity,
             0
           ),
-          products: selectedProducts,
-          status: "Not Paid!",
-          userEmail: session?.user?.email,
+          products: selectedProducts.map((item) => ({
+            id: item.id,
+            title: item.title,
+            quantity: item.quantity,
+          })),
         }),
       });
 
@@ -121,7 +127,6 @@ const CartPage = () => {
   return (
     <>
       <div className="min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-9rem)] flex flex-col lg:flex-row items-start gap-6 p-6 bg-white text-teal-600">
-        {/* Produk */}
         <div className="w-full lg:w-2/3 max-h-[75vh] overflow-y-auto space-y-4 pr-1">
           {products.map((item) => (
             <div
@@ -150,9 +155,7 @@ const CartPage = () => {
                 />
               )}
               <div className="flex-1 px-4">
-                <h1 className="uppercase text-lg font-semibold">
-                  {item.title}
-                </h1>
+                <h1 className="uppercase text-lg font-semibold">{item.title}</h1>
                 <p className="text-sm text-gray-600 mb-2">
                   {item.optionTitle} | Stok: {stockMap[item.id] ?? "..."}
                 </p>
@@ -166,9 +169,7 @@ const CartPage = () => {
                   >
                     -
                   </button>
-                  <span className="text-md font-semibold">
-                    {item.quantity}
-                  </span>
+                  <span className="text-md font-semibold">{item.quantity}</span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -202,7 +203,6 @@ const CartPage = () => {
           ))}
         </div>
 
-        {/* Pembayaran */}
         <div className="w-full lg:w-1/3 p-6 bg-fuchsia-50 rounded-lg shadow-md space-y-4 text-base">
           <div className="flex justify-between">
             <span>Produk Terpilih</span>

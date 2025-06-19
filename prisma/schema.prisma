@@ -97,12 +97,12 @@ model Order {
 }
 
 model ContactMessage {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
   name      String
   email     String
   subject   String
   message   String
   reply     String?
-  replyAt DateTime?
+  replyAt   DateTime?
 }

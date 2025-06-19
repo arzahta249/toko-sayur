@@ -11,7 +11,7 @@ type Inputs = {
   desc: string;
   price: number;
   catSlug: string;
-  stock: number; // ✅ Tambahan field stok
+  stock: number;
 };
 
 type Option = {
@@ -26,7 +26,7 @@ const AddPage = () => {
     desc: "",
     price: 0,
     catSlug: "",
-    stock: 0, // ✅ Default stok
+    stock: 0,
   });
 
   const [option, setOption] = useState<Option>({
@@ -101,10 +101,22 @@ const AddPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (
+      !inputs.title ||
+      !inputs.desc ||
+      !inputs.catSlug ||
+      inputs.price <= 0 ||
+      inputs.stock < 0 ||
+      !file
+    ) {
+      toast.error("Semua field wajib diisi dengan benar!");
+      return;
+    }
+
     try {
       const imgUrl = await upload();
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -206,7 +218,7 @@ const AddPage = () => {
             type="text"
             name="catSlug"
             onChange={handleChange}
-            placeholder="Sayuran"
+            placeholder="sayur"
             className="ring-1 ring-teal-700 p-4 rounded-sm placeholder:text-teal-500 outline-none"
             required
           />

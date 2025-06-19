@@ -1,30 +1,32 @@
 import { prisma } from "@/utils/connect";
-import { NextResponse } from "next/server";
 import midtransClient from "midtrans-client";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export async function POST(
-  req: Request,
-  { params }: { params: { orderId: string } }
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  const { orderId } = req.query;
+
+  if (!orderId || typeof orderId !== "string") {
+    return res.status(400).json({ message: "Missing or invalid orderId parameter" });
+  }
+
   try {
-    if (!params.orderId) {
-      return new NextResponse("Missing orderId parameter", { status: 400 });
-    }
-
     const order = await prisma.order.findUnique({
-      where: { id: params.orderId },
+      where: { id: orderId },
     });
 
     if (!order) {
-      return new NextResponse("Order not found", { status: 404 });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     const amount = Number(order.price);
     if (isNaN(amount) || amount <= 0) {
-      return new NextResponse("Invalid order price", { status: 400 });
+      return res.status(400).json({ message: "Invalid order price" });
     }
 
-    // Buat ID unik Midtrans (gunakan tanda pemisah yang aman seperti `__`)
     const midtransOrderId = `ORDER__${order.id}__${Date.now()}`;
 
     await prisma.order.update({
@@ -57,10 +59,10 @@ export async function POST(
     };
 
     const transaction = await snap.createTransaction(transactionParams);
-    return NextResponse.json({ redirect_url: transaction.redirect_url });
+    return res.status(200).json({ redirect_url: transaction.redirect_url });
 
   } catch (error) {
     console.error("Midtrans payment error:", error);
-    return new NextResponse("Payment processing failed", { status: 500 });
+    return res.status(500).json({ message: "Payment processing failed" });
   }
 }

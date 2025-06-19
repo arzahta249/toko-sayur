@@ -1,7 +1,11 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { NextAuthOptions, User, getServerSession } from "next-auth";
+import { type NextAuthOptions, getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./connect";
+import { NextApiRequest, NextApiResponse } from "next";
+
+// Tambahan deklarasi tipe untuk session dan JWT
+import { User } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
@@ -17,13 +21,13 @@ declare module "next-auth/jwt" {
   }
 }
 
+// Konfigurasi NextAuth
 export const authOptions: NextAuthOptions = {
   debug: false,
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
-  // Hapus custom cookies bagian state untuk pakai default dari NextAuth
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
@@ -55,4 +59,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const getAuthSession = () => getServerSession(authOptions);
+// Fungsi untuk digunakan di pages/api/*
+export const getAuthSession = (req: NextApiRequest, res: NextApiResponse) =>
+  getServerSession(req, res, authOptions);

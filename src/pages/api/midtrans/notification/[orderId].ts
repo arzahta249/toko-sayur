@@ -1,9 +1,17 @@
+// src/pages/api/midtrans/notification/[orderId].ts
 import { prisma } from "@/utils/connect";
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export async function POST(req: NextRequest) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
   try {
-    const body = await req.json();
+    const body = req.body;
     const { order_id, transaction_status, fraud_status, payment_type } = body;
 
     console.log("Notifikasi Midtrans:", body);
@@ -13,7 +21,7 @@ export async function POST(req: NextRequest) {
     const internalOrderId = parts?.[1];
 
     if (!internalOrderId) {
-      return new NextResponse("Invalid order_id", { status: 400 });
+      return res.status(400).json({ message: "Invalid order_id" });
     }
 
     let newStatus = "Menunggu pembayaran";
@@ -34,14 +42,14 @@ export async function POST(req: NextRequest) {
       where: { id: internalOrderId },
       data: {
         status: newStatus,
-        // paymentMethod: payment_type, // opsional jika kamu mau simpan metode pembayaran
+        // paymentMethod: payment_type, // opsional
       },
     });
 
-    return new NextResponse("Notification handled", { status: 200 });
+    return res.status(200).json({ message: "Notification handled" });
 
   } catch (error) {
     console.error("Midtrans Notification Error:", error);
-    return new NextResponse("Error handling notification", { status: 500 });
+    return res.status(500).json({ message: "Error handling notification" });
   }
 }
