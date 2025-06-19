@@ -104,7 +104,7 @@ const AddPage = () => {
     try {
       const imgUrl = await upload();
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

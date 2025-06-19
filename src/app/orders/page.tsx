@@ -67,13 +67,13 @@ const OrdersPage = () => {
     const form = e.target as HTMLFormElement;
     const select = form.elements.namedItem("status") as HTMLSelectElement;
     const status = select.value;
-
     mutation.mutate({ id, status });
   };
 
   const handleDelete = (id: string) => {
     const confirmBox = document.createElement("div");
-    confirmBox.className = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50";
+    confirmBox.className =
+      "fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50";
     confirmBox.innerHTML = `
       <div class="bg-white p-6 rounded-lg shadow-md max-w-sm w-full text-center">
         <h3 class="text-lg font-semibold mb-4">Hapus Pesanan</h3>
@@ -140,7 +140,8 @@ const OrdersPage = () => {
                     {session?.user && !session.user.isAdmin ? (
                       <div className="flex flex-col gap-2 md:flex-row md:items-center">
                         <span>{item.status}</span>
-                        {item.status?.trim().toLowerCase() === "menunggu pembayaran" && (
+                        {item.status?.trim().toLowerCase() ===
+                          "menunggu pembayaran" && (
                           <button
                             onClick={() => router.push(`/pay/${item.id}`)}
                             className="bg-teal-600 text-white px-4 py-1 rounded hover:bg-teal-700 transition"
@@ -159,14 +160,26 @@ const OrdersPage = () => {
                           name="status"
                           className="p-2 ring-1 ring-red-100 rounded-md w-32"
                         >
-                          <option value="menunggu pembayaran">Menunggu pembayaran</option>
-                          <option value="dalam pemprosesan">Dalam pemprosesan</option>
+                          <option value="menunggu pembayaran">
+                            Menunggu pembayaran
+                          </option>
+                          <option value="dalam pemprosesan">
+                            Dalam pemprosesan
+                          </option>
                           <option value="sedang dikirim">Sedang dikirim</option>
                           <option value="pesanan sampai">Pesanan sampai</option>
                           <option value="cancelled">Cancelled</option>
                         </select>
-                        <button type="submit" className="bg-teal-600 p-2 rounded-full">
-                          <Image src="/edit.png" alt="edit" width={20} height={20} />
+                        <button
+                          type="submit"
+                          className="bg-teal-600 p-2 rounded-full"
+                        >
+                          <Image
+                            src="/edit.png"
+                            alt="edit"
+                            width={20}
+                            height={20}
+                          />
                         </button>
                       </form>
                     )}
@@ -184,7 +197,10 @@ const OrdersPage = () => {
                 </tr>
                 <tr className="bg-white border-b border-gray-100">
                   <td colSpan={8} className="px-3 py-2 text-xs text-gray-500">
-                    Order ID: {item.order_id ? item.order_id.replace(/^ORDER/i, "") : item.id}
+                    Order ID:{" "}
+                    {item.order_id
+                      ? item.order_id.replace(/^ORDER/i, "")
+                      : item.id}
                   </td>
                 </tr>
               </React.Fragment>

@@ -19,10 +19,10 @@ const DeleteButton = ({ id }: { id: string }) => {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`, {
         method: "DELETE",
       });
-      
+
       if (res.ok) {
         router.push("/menu");
         toast("The product has been deleted!");

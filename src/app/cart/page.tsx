@@ -31,7 +31,7 @@ const CartPage = () => {
       const newStockMap: { [id: string]: number } = {};
       for (const item of products) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${item.id}`);;
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${item.id}`);
           if (res.ok) {
             const data = await res.json();
             newStockMap[item.id] = data.stock;
@@ -93,6 +93,7 @@ const CartPage = () => {
       toast.success("Checkout berhasil, menuju pembayaran...");
       setTimeout(() => router.push(`/pay/${data.id}`), 1500);
     } catch (err) {
+      console.error("Checkout error:", err);
       toast.error("Gagal melakukan checkout");
     } finally {
       setLoading(false);

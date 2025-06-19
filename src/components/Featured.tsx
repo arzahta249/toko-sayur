@@ -1,40 +1,26 @@
-"use client";
-
 import { ProductType } from "@/types/types";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { headers } from "next/headers";
 
-const Featured = () => {
-  const [featuredProducts, setFeaturedProducts] = useState<ProductType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+const getData = async () => {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const protocol = host?.includes("localhost") ? "http" : "https";
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await fetch("/api/products", {
-          cache: "no-store",
-        });
+  const res = await fetch(`${protocol}://${host}/api/products`, {
+    cache: "no-store",
+  });
 
-        if (!res.ok) {
-          throw new Error("Failed!");
-        }
+  if (!res.ok) {
+    throw new Error("Failed to fetch featured products");
+  }
 
-        const data = await res.json();
-        setFeaturedProducts(data);
-      } catch (error) {
-        console.error(error);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
+  return res.json();
+};
 
-    getData();
-  }, []);
-
-  if (loading) return <p className="text-center py-12">Loading featured products...</p>;
-  if (error) return <p className="text-center text-red-500 py-12">Failed to load featured products.</p>;
+const Featured = async () => {
+  const featuredProducts: ProductType[] = await getData();
 
   return (
     <section className="w-full max-w-[1200px] mx-auto px-4 py-12 text-black">
@@ -46,6 +32,7 @@ const Featured = () => {
             key={item.id}
             className="flex-shrink-0 w-[280px] md:w-[360px] xl:w-[400px] bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
           >
+            {/* IMAGE CONTAINER */}
             {item.img && (
               <div className="relative h-[250px] md:h-[300px] xl:h-[350px] rounded-t-lg overflow-hidden">
                 <Image
@@ -58,6 +45,7 @@ const Featured = () => {
               </div>
             )}
 
+            {/* TEXT CONTAINER */}
             <div className="p-4 flex flex-col items-center text-center gap-3">
               <h3 className="text-xl md:text-2xl font-semibold uppercase">{item.title}</h3>
               <p className="text-gray-700 text-sm md:text-base">{item.desc}</p>
