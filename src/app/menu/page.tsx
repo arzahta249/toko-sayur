@@ -47,7 +47,7 @@ const MenuPage = async () => {
                 color: category.color === "black" ? "white" : "black",
               }}
             >
-              Explore
+              jelajahi
             </button>
           </div>
         </Link>
