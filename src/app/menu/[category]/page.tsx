@@ -5,7 +5,7 @@ import React from "react";
 
 // Ambil data produk berdasarkan kategori
 const getData = async (category: string) => {
-  const res = await fetch(`http://localhost:3000/api/products?cat=${category}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products?cat=${category}`, {
     cache: "no-store",
   });
 

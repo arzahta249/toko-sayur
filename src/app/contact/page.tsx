@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import Image from "next/image";
 
 interface MessageDetail {
   id: string;
@@ -265,7 +266,7 @@ export default function ContactPage() {
           </ul>
         </div>
         <div>
-          <img
+          <Image
             src="/logotokoAI.jpg"
             alt="Lokasi"
             className="rounded-md object-cover w-full h-[300px]"
@@ -291,7 +292,7 @@ export default function ContactPage() {
           <h2 className="text-base font-semibold mb-4 text-center">Profil Tim</h2>
           <div className="border border-gray-300 rounded-lg p-4 shadow-sm bg-gray-50">
             <div className="flex items-center gap-4">
-              <img src="/logotokoAI.jpg" alt="Developer" className="w-20 h-20 object-cover rounded-full" />
+              <Image src="/logotokoAI.jpg" alt="Developer" className="w-20 h-20 object-cover rounded-full" />
               <div>
                 <p><strong>Nama:</strong> M Alifi Arzahta</p>
                 <p><strong>Kontak:</strong> 082314169288</p>

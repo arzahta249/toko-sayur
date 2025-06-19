@@ -1,14 +1,19 @@
 import { ProductType } from "@/types/types";
 import Image from "next/image";
 import React from "react";
+import { headers } from "next/headers";
 
 const getData = async () => {
-  const res = await fetch("http://localhost:3000/api/products", {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const protocol = host?.includes("localhost") ? "http" : "https";
+
+  const res = await fetch(`${protocol}://${host}/api/products`, {
     cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed!");
+    throw new Error("Failed to fetch featured products");
   }
 
   return res.json();
