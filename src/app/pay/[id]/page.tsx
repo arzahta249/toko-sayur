@@ -3,13 +3,19 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const PayPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id =
+    typeof params?.id === "string"
+      ? params.id
+      : Array.isArray(params?.id)
+      ? params.id[0]
+      : "";
 
-  const [name, setName] = useState("");       // tambahan state name
+  const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +39,7 @@ const PayPage = () => {
       return false;
     }
 
-    if (!name.trim() || !address.trim() || !phone.trim()) {  // cek name juga
+    if (!name.trim() || !address.trim() || !phone.trim()) {
       notify("Nama, alamat, dan No. Telepon wajib diisi.");
       return false;
     }
@@ -44,7 +50,7 @@ const PayPage = () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,          // kirim name juga
+          name,
           address,
           phone,
           status: "Dalam proses..",
@@ -70,11 +76,14 @@ const PayPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/midtrans/${id}`, { method: "POST" });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/midtrans/${id}`,
+        {
+          method: "POST",
+        }
+      );
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
       const data = await res.json();
 
@@ -97,7 +106,10 @@ const PayPage = () => {
 
     setLoading(true);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/confirm-cod/${id}`, { method: "PUT" });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/confirm-cod/${id}`,
+        { method: "PUT" }
+      );
       router.push(`/success?order_id=${id}&method=cod`);
     } catch (error) {
       console.error(error);

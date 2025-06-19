@@ -7,8 +7,8 @@ import ConfettiExplosion from "react-confetti-explosion";
 const SuccessPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const orderId = searchParams.get("order_id");
-  const method = searchParams.get("method");
+  const orderId = searchParams?.get("order_id");
+  const method = searchParams?.get("method");
 
   const [message, setMessage] = useState("Memproses pesanan Anda...");
   const [loading, setLoading] = useState(true);

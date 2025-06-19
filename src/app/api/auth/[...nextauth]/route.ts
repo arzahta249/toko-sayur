@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import NextAuth from "next-auth";
 import { authOptions } from "@/utils/auth";
-import NextAuth from "next-auth/next";
 
 const handler = NextAuth(authOptions);
 
